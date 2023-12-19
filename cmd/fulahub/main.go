@@ -14,6 +14,7 @@ import (
 	"github.com/ipfs/go-log/v2"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/libp2p/go-libp2p/core/network"
 )
 
 var logger = log.Logger("fula/hub/main")
@@ -33,6 +34,8 @@ func main() {
 		"", "comma separated IPNI provider addresses")
 	dsPath := flag.String("dsPath",
 		"", "Datastore path")
+	disableResourceManager := flag.Bool("disableResourceManager",
+		true, "Whether to disable the libp2p resource manager")
 
 	flag.Parse()
 
@@ -50,6 +53,9 @@ func main() {
 	}
 	if *listenAddrs != "" {
 		lopts = append(lopts, libp2p.ListenAddrStrings(strings.Split(*listenAddrs, ",")...))
+	}
+	if *disableResourceManager {
+		lopts = append(lopts, libp2p.ResourceManager(&network.NullResourceManager{}))
 	}
 
 	host, err := libp2p.New(lopts...)
